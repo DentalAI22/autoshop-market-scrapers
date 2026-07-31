@@ -1,0 +1,75 @@
+# Auto shop listings scraper — scheduled aggregation.
+#
+# Runs ONCE DAILY, staggered after the network's other daily scrape jobs to
+# spread GitHub Actions load (dental/vet run at 08:30 UTC, medical at 09:30
+# UTC — this one runs at 09:45 UTC). Mirrors the dental TDPM / veterinary
+# GitHub Action pattern: checkout -> install deps -> run scrapers ->
+# normalize -> commit the updated dataset.
+#
+# HOSTED at DentalAI22/autoshop-market-scrapers, PUBLIC -> GitHub Actions
+# minutes are unlimited/free (private repos share only 2,000 free
+# Linux-min/mo across the account). The job pushes back with the default
+# GITHUB_TOKEN (permissions.contents: write) — no PAT needed.
+
+name: Scrape Auto Shop Listings
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "45 9 * * *"    # daily full refresh at 09:45 UTC (staggered after medical's 09:30)
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scrapers + normalize
+        run: python run_all.py
+
+      - name: Sanity-check dataset (guard the live source of truth)
+        # The live site PULLS this listings.json at build time, so a
+        # collapsed scrape (e.g. every runner IP gets blocked and every
+        # scraper writes 0 rows) must NOT be committed, or it would wipe the
+        # site on its next build. This vertical intentionally carries NO
+        # minimum-listing-count floor (per JI's explicit ruling — a thin,
+        # honestly-small inventory is fine; padding is not) — the run_all.py
+        # per-source restore-on-0-rows logic already protects each
+        # individual source. This CI guard only trips on a true full
+        # collapse to zero across every source at once.
+        run: |
+          COUNT=$(python -c "import json;print(len(json.load(open('listings.json'))))")
+          echo "listings.json contains $COUNT listings"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::Dataset collapsed to 0 listings — refusing to commit; keeping last-good."
+            exit 1
+          fi
+
+      - name: Commit refreshed dataset
+        # This rig is its own GitHub repo (DentalAI22/autoshop-market-scrapers,
+        # PUBLIC). It commits ONLY its own tracked files here — it does not
+        # reach into the site repo (../autoshop is a SEPARATE git repo).
+        # Instead, the site PULLS this repo's listings.json from the public
+        # raw URL at build time (npm `prebuild` -> scripts/fetch-listings.mjs),
+        # so a fresh `vercel --prod` / rebuild always republishes the latest
+        # dataset. No cross-repo push credentials required anywhere.
+        run: |
+          git config user.name  "autoshop-scraper-bot"
+          git config user.email "jonathan@tdibroker.com"
+          git add listings.json output/*.csv site_id_registry.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(autoshop): refresh listings $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase origin main && git push
+          else
+            echo "No listing changes."
+          fi

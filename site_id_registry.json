@@ -1,0 +1,26 @@
+{
+  "prefix": "TASM",
+  "base": 1,
+  "next_id": 20,
+  "map": {
+    "sba-SA1743": 1,
+    "sbsfl-56982": 2,
+    "sbsfl-58794": 3,
+    "syn-fleet-automotive-repair-and-maintenance-": 4,
+    "vr-mbz-auto-repair-est-22-years-5-star-revi": 5,
+    "vr-fleet-maintenance-heavy-equipment-repair": 6,
+    "vr-100k-monthly-revenue-auto-shop-ready-for": 7,
+    "vr-premier-luxury-auto-body-paint-shop-in-o": 8,
+    "vr-highly-reputable-orange-county-auto-body": 9,
+    "vr-established-auto-repair-business-in-prim": 10,
+    "vr-smog-check-test-only-star-certiified-so-": 11,
+    "vr-auto-collision-repair-business-fully-equ": 12,
+    "vr-auto-repair-long-established": 13,
+    "vr-auto-repair-orange-county-low-price": 14,
+    "vr-tire-shop-in-prime-central-oc-establishe": 15,
+    "vr-looking-for-a-real-business-opportunity-": 16,
+    "vr-smog-test-only-station-39-years-turnkey": 17,
+    "vr-general-auto-repair-shop-plus-transmissi": 18,
+    "vr-auto-service-company": 19
+  }
+}

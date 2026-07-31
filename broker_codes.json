@@ -1,0 +1,35 @@
+{
+  "_README": "Auto repair broker source registry. Mirrors the veterinary TVM/dental TDPM broker_codes.json pattern. site_prefix TASM = The Auto Shop Market (feeds theautoshopmarket.com). NEVER collides with TDPM- (dental), TVM- (veterinary), or any other vertical's prefix. 'ref_prefix' is the source-scoped broker reference shown muted on cards. 'aggregator: true' sources are treated like the network's blocked aggregators and purged by the normalizer. Every source here is a real broker's own site (a national/regional brokerage's own domain, or an independently-owned regional franchise office's own domain) — never an aggregator/marketplace.",
+  "site_prefix": "TASM",
+  "sources": {
+    "sunbeltatlanta": {
+      "broker_name": "Sunbelt Atlanta Business Brokers",
+      "broker_url": "https://www.sunbeltatlanta.com/atlanta-businesses-for-sale",
+      "ref_prefix": "SBATL",
+      "aggregator": false
+    },
+    "sunbeltsfl": {
+      "broker_name": "Sunbelt Business Brokers of South Florida",
+      "broker_url": "https://sunbeltsfl.com/businesses-for-sale-table/",
+      "ref_prefix": "SBSFL",
+      "aggregator": false
+    },
+    "synergybb": {
+      "broker_name": "Synergy Business Brokers",
+      "broker_url": "https://synergybb.com/businesses-for-sale/automotive-businesses-for-sale/",
+      "ref_prefix": "SYN",
+      "aggregator": false
+    },
+    "vrbrokers": {
+      "broker_name": "VR Business Brokers (regional offices)",
+      "broker_url": "https://www.vrbusinessbrokers.com/",
+      "ref_prefix": "VR",
+      "aggregator": false
+    }
+  },
+  "blocked_aggregators": [
+    "bizbuysell", "bizquest", "loopnet", "dealstream", "businessbroker.net",
+    "businessbroker", "sunbeltnetwork"
+  ],
+  "_note_on_sunbeltnetwork": "sunbeltnetwork.com (the Sunbelt corporate umbrella search site, distinct from each independently-owned regional office's own domain like sunbeltatlanta.com / sunbeltsfl.com) returns HTTP 403 to a polite scraper fetch (Cloudflare) and is not used as a source. Regional Sunbelt office domains ARE each office's own site and are used."
+}
